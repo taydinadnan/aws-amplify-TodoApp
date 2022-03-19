@@ -1,10 +1,10 @@
 {
-  "projectName": "awsamplifydeneme",
-  "version": "2.0",
-  "frontend": "flutter",
   "providers": [
     "awscloudformation"
   ],
+  "projectName": "fluttertodoapp",
+  "version": "3.1",
+  "frontend": "flutter",
   "flutter": {
     "config": {
       "ResDir": "./lib/"

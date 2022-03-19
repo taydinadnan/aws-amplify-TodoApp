@@ -40,11 +40,15 @@ class TodoCubit extends Cubit<TodoState> {
 
   void createTodo(String title) async {
     await _todoRepo.createTodo(title);
-    getTodos();
+  }
+
+  void observeTodo() {
+    final todosStream = _todoRepo.observeTodos();
+    //get todos whenever event happends
+    todosStream.listen((_) => getTodos());
   }
 
   void updateTodoIsComplete(Todo todo, bool isDone) async {
     await _todoRepo.updateTodoIsDone(todo, isDone);
-    getTodos();
   }
 }
