@@ -2,9 +2,9 @@ import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:awsamplifydeneme/loading_view.dart';
-import 'package:awsamplifydeneme/todo_cubit.dart';
-import 'package:awsamplifydeneme/todos_view.dart';
+import 'package:awsamplifydeneme/app_navigator.dart';
+import 'package:awsamplifydeneme/cubit/auth_cubit.dart';
+import 'package:awsamplifydeneme/widgets/loading_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,21 +17,29 @@ void main() {
 
 class MyApp extends StatefulWidget {
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<StatefulWidget> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   bool _amplifyConfigured = false;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     _configureAmplify();
   }
 
-  void _configureAmplify() async {
-    //this is for  data storing
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: BlocProvider(
+        create: (context) => AuthCubit()..attemptAutoSignIn(),
+        child: _amplifyConfigured ? AppNavigator() : LoadingView(),
+      ),
+    );
+  }
 
+  void _configureAmplify() async {
     // Once Plugins are added, configure Amplify
     try {
       await Future.wait([
@@ -40,25 +48,13 @@ class _MyAppState extends State<MyApp> {
         Amplify.addPlugin(AmplifyAPI()),
         Amplify.addPlugin(AmplifyAuthCognito())
       ]);
-
       await Amplify.configure(amplifyconfig);
       setState(() {
         _amplifyConfigured = true;
       });
+      // Amplify.DataStore.clear();
     } catch (e) {
       print(e);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider(
-          create: (context) => TodoCubit()
-            ..getTodos()
-            ..observeTodo(),
-          child: _amplifyConfigured ? TodosView() : LoadingView()),
-    );
   }
 }

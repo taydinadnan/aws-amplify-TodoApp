@@ -1,17 +1,17 @@
-import 'package:awsamplifydeneme/todo_repository.dart';
-import 'package:flutter/material.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito_stream_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'models/Todo.dart';
+import '../models/Todo.dart';
+import '../todo_repository.dart';
 
 abstract class TodoState {}
 
 class LoadingTodos extends TodoState {}
 
 class ListTodosSuccess extends TodoState {
-  final List<Todo>? todos;
+  final List<Todo> todos;
 
-  ListTodosSuccess({this.todos});
+  ListTodosSuccess({required this.todos});
 }
 
 class ListTodosFailure extends TodoState {
@@ -22,8 +22,9 @@ class ListTodosFailure extends TodoState {
 
 class TodoCubit extends Cubit<TodoState> {
   final _todoRepo = TodoRepository();
+  final String userId;
 
-  TodoCubit() : super(LoadingTodos());
+  TodoCubit({required this.userId}) : super(LoadingTodos());
 
   void getTodos() async {
     if (state is ListTodosSuccess == false) {
@@ -31,24 +32,23 @@ class TodoCubit extends Cubit<TodoState> {
     }
 
     try {
-      final todos = await _todoRepo.getTodos();
+      final todos = await _todoRepo.getTodos(userId);
       emit(ListTodosSuccess(todos: todos));
     } catch (e) {
       emit(ListTodosFailure());
     }
   }
 
-  void createTodo(String title) async {
-    await _todoRepo.createTodo(title);
-  }
-
   void observeTodo() {
     final todosStream = _todoRepo.observeTodos();
-    //get todos whenever event happends
     todosStream.listen((_) => getTodos());
   }
 
-  void updateTodoIsComplete(Todo todo, bool isDone) async {
-    await _todoRepo.updateTodoIsDone(todo, isDone);
+  void createTodo(String title) async {
+    await _todoRepo.createTodo(title, userId);
+  }
+
+  void updateTodoIsComplete(Todo todo, bool isComplete) async {
+    await _todoRepo.updateTodoIsComplete(todo, isComplete);
   }
 }

@@ -29,6 +29,7 @@ class Todo extends Model {
   final String id;
   final String title;
   final bool? isDone;
+  final String userId;
   final TemporalDateTime? createdAt;
   final TemporalDateTime? updatedAt;
 
@@ -44,12 +45,20 @@ class Todo extends Model {
       {required this.id,
       required this.title,
       this.isDone,
+      required this.userId,
       this.createdAt,
       this.updatedAt});
 
-  factory Todo({String? id, required String title, bool? isDone}) {
+  factory Todo(
+      {String? id,
+      required String title,
+      bool? isDone,
+      required String userId}) {
     return Todo._internal(
-        id: id == null ? UUID.getUUID() : id, title: title, isDone: isDone);
+        id: id == null ? UUID.getUUID() : id,
+        title: title,
+        isDone: isDone,
+        userId: userId);
   }
 
   bool equals(Object other) {
@@ -62,7 +71,8 @@ class Todo extends Model {
     return other is Todo &&
         id == other.id &&
         title == other.title &&
-        isDone == other.isDone;
+        isDone == other.isDone &&
+        userId == other.userId;
   }
 
   @override
@@ -77,6 +87,7 @@ class Todo extends Model {
     buffer.write("title=" + "$title" + ", ");
     buffer.write(
         "isDone=" + (isDone != null ? isDone.toString() : "null") + ", ");
+    buffer.write("userId=" + "$userId" + ", ");
     buffer.write("createdAt=" +
         (createdAt != null ? createdAt!.format() : "null") +
         ", ");
@@ -87,17 +98,19 @@ class Todo extends Model {
     return buffer.toString();
   }
 
-  Todo copyWith({String? id, String? title, bool? isDone}) {
+  Todo copyWith({String? id, String? title, bool? isDone, String? userId}) {
     return Todo._internal(
         id: id ?? this.id,
         title: title ?? this.title,
-        isDone: isDone ?? this.isDone);
+        isDone: isDone ?? this.isDone,
+        userId: userId ?? this.userId);
   }
 
   Todo.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         title = json['title'],
         isDone = json['isDone'],
+        userId = json['userId'],
         createdAt = json['createdAt'] != null
             ? TemporalDateTime.fromString(json['createdAt'])
             : null,
@@ -109,6 +122,7 @@ class Todo extends Model {
         'id': id,
         'title': title,
         'isDone': isDone,
+        'userId': userId,
         'createdAt': createdAt?.format(),
         'updatedAt': updatedAt?.format()
       };
@@ -116,6 +130,7 @@ class Todo extends Model {
   static final QueryField ID = QueryField(fieldName: "todo.id");
   static final QueryField TITLE = QueryField(fieldName: "title");
   static final QueryField ISDONE = QueryField(fieldName: "isDone");
+  static final QueryField USERID = QueryField(fieldName: "userId");
   static var schema =
       Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Todo";
@@ -141,6 +156,11 @@ class Todo extends Model {
         key: Todo.ISDONE,
         isRequired: false,
         ofType: ModelFieldType(ModelFieldTypeEnum.bool)));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+        key: Todo.USERID,
+        isRequired: true,
+        ofType: ModelFieldType(ModelFieldTypeEnum.string)));
 
     modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(
         fieldName: 'createdAt',

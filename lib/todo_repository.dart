@@ -3,17 +3,24 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'models/Todo.dart';
 
 class TodoRepository {
-  Future<List<Todo>> getTodos() async {
+  Future<List<Todo>> getTodos(String userId) async {
     try {
-      final todos = await Amplify.DataStore.query(Todo.classType);
+      final todos = await Amplify.DataStore.query(
+        Todo.classType,
+        where: Todo.USERID.eq(userId),
+      );
       return todos;
     } catch (e) {
       throw e;
     }
   }
 
-  Future<void> createTodo(String title) async {
-    final newTodo = Todo(title: title, isDone: false);
+  Future<void> createTodo(String title, String userId) async {
+    final newTodo = Todo(
+      title: title,
+      isDone: false,
+      userId: userId,
+    );
     try {
       await Amplify.DataStore.save(newTodo);
     } catch (e) {
@@ -21,8 +28,8 @@ class TodoRepository {
     }
   }
 
-  Future<void> updateTodoIsDone(Todo todo, bool isDone) async {
-    final updatedTodo = todo.copyWith(isDone: isDone);
+  Future<void> updateTodoIsComplete(Todo todo, bool isComplete) async {
+    final updatedTodo = todo.copyWith(isDone: isComplete);
     try {
       await Amplify.DataStore.save(updatedTodo);
     } catch (e) {

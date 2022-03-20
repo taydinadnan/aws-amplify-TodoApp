@@ -10,6 +10,8 @@ export type AmplifyDependentResourcesAttributes = {
         "fluttertodoapp88149b9d": {
             "IdentityPoolId": "string",
             "IdentityPoolName": "string",
+            "HostedUIDomain": "string",
+            "OAuthMetadata": "string",
             "UserPoolId": "string",
             "UserPoolArn": "string",
             "UserPoolName": "string",
